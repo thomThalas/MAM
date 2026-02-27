@@ -36,6 +36,7 @@ class TaskData():
     childIndex: int
     parentIndex: int
     widgetReference: TaskDataWidgets
+    widgetList: list[ctk.CTkBaseClass]
 
 
 
@@ -112,12 +113,12 @@ def SavePdf(task_: TaskData):
         if config.render_textname == "1":
             page.insert_text(ppdf.Point(25, int(config.top_padding)), task_.name)
 
-        
+        img.close()
         if config.delete_image_files == "1":
             try:
                 os.remove(task.imagePath)
-            except:
-                print("Failed delete image attempt")
+            except Exception as e:
+                print(e)
 
     name = task_.name+task_.completion.value+".pdf"
     print("saved:", name)
@@ -261,16 +262,26 @@ def Refresh():
             if dotList.pop() not in image_extensions:
                 continue
             name = ".".join(dotList)
-            taskData.append(TaskData(name, full_path, Completion.A, 0, -1, -1, TaskDataWidgets()))
+            taskData.append(TaskData(name, full_path, Completion.A, 0, -1, -1, TaskDataWidgets(), []))
     
     CreateTaskList()
 
+
+def DestroyTaskDatawidgets(i):
+    for widget in taskData[i].widgetList:
+        widget.destroy()
+    if taskData[i].childIndex != -1:
+        DestroyTaskDatawidgets(taskData[i].childIndex)
+        
 
 def SavePdfButton(i, widgets: list[ctk.CTkBaseClass]):
     SavePdf(taskData[i])
     if config.delete_image_files == "1":
         for widget in widgets:
             widget.destroy()
+        if taskData[i].childIndex != -1:
+            DestroyTaskDatawidgets(taskData[i].childIndex)
+        
 
 def CompletionChanceCallback(choice, i):
     if choice == "A":
@@ -401,12 +412,13 @@ def CreateTaskList():
         previewbutton.configure(command=lambda localI=i: CanvasUpdate(taskData[localI]))
         previewbutton.grid(row=i, column=4, pady=5, padx=5)
 
+        
 
         savebutton = ctk.CTkButton(listFrame, text="💾", width=50, font=("", 20), fg_color="green", hover_color="darkgreen")
-        savebutton.configure(command=lambda localI=i, widgets=[label,completion,savebutton,previewbutton,linkButton]: SavePdfButton(localI, widgets))
+        savebutton.configure(command=lambda localI=i, widgets=[label,completion,savebutton,previewbutton,linkButton,linkText]: SavePdfButton(localI, widgets))
         savebutton.grid(row=i, column=5, pady=5, padx=5)
 
-
+        taskData[i].widgetList = [label,completion,savebutton,previewbutton,linkButton,linkText]
         taskData[i].widgetReference.linkText            = linkText
         taskData[i].widgetReference.linkButton          = linkButton
         taskData[i].widgetReference.saveButton          = savebutton
@@ -482,6 +494,8 @@ def CanvasUpdate(task: TaskData):
         #p0 = (0, 0) #testing coords
         #canvas.create_image(p0[0], p0[1], image=img)
         canvas.create_image(canvas.winfo_width()/2, PTC(float(config.top_padding)+20), image=currentCanvasImageDisplayed, anchor="n")
+
+        imgData.close()
 
     doc.close()
     

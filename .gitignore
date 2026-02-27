@@ -1,0 +1,7 @@
+build/
+dist/
+images/
+output/
+__pycache__/
+main.spec
+README_files/

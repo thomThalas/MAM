@@ -7,7 +7,8 @@
 
 * Each image should be named corresponding to what task you have taken a picture of.
 * Like for example `TM100.png` or `cbog8.16.jpg`
-* If you wish to use 2 images then rename the second image to something you can recognize later that would signify the order of the image but remember to keep the original image name the same as before. This would be something like `TM100_2.png`.
+* If you wish to use 2 images then rename the second image to something you can recognize later that would signify the order of the image. This would be something like `TM100_2.png`.
+* _**Remember to keep the first image name without the end suffix.**_
 * Now choose A,B or C through the dropdown of the image.
 * To preview the final pdf page then press the `👁` button.
 

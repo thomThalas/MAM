@@ -191,7 +191,7 @@ for i, var in enumerate(configVariables):
     if isConfigFolderPath[i] and not isConfigNumber[i]:
         ctk.CTkButton(configFrame, text="📁", width=50, font=("", 20), command=lambda localI=i: directoryButton(localI))\
             .grid(row=i, column=2, pady=5, padx=5)
-        
+
 
 def PdfChangeButton():
     pdfPath = ctk.filedialog.askopenfilename(filetypes=[("Portable Document Format", ".pdf")])
@@ -201,7 +201,7 @@ def PdfChangeButton():
 currentRow = len(configVariables)
 
 ctk.CTkLabel(configFrame, text="change template")\
-        .grid(row=currentRow, column=0, padx=10, pady=5, sticky="w")
+    .grid(row=currentRow, column=0, padx=10, pady=5, sticky="w")
 ctk.CTkButton(configFrame, text="📁", width=50, font=("", 20), command=PdfChangeButton)\
     .grid(row=currentRow, column=1, pady=5, padx=5, sticky="w")
 
@@ -267,20 +267,22 @@ def Refresh():
     CreateTaskList()
 
 
-def DestroyTaskDatawidgets(i):
+def DestroyTaskDatawidgets(i, iterateChildren = False):
     for widget in taskData[i].widgetList:
         widget.destroy()
-    if taskData[i].childIndex != -1:
+    if taskData[i].childIndex != -1 and iterateChildren:
         DestroyTaskDatawidgets(taskData[i].childIndex)
         
 
 def SavePdfButton(i, widgets: list[ctk.CTkBaseClass]):
+    if taskData[i].parentIndex != -1:
+        return
     SavePdf(taskData[i])
     if config.delete_image_files == "1":
         for widget in widgets:
             widget.destroy()
         if taskData[i].childIndex != -1:
-            DestroyTaskDatawidgets(taskData[i].childIndex)
+            DestroyTaskDatawidgets(taskData[i].childIndex, True)
         
 
 def CompletionChanceCallback(choice, i):
@@ -375,6 +377,12 @@ def LinkButtonCallback(taskIndex):
         linkingState = -1
         
 
+def SaveAllTaskData():
+    for i, task in enumerate(taskData):
+        SavePdfButton(i, taskData[i].widgetList)
+    if config.delete_image_files == "1":
+        listFrame.winfo_children()[-1].destroy()
+
 def CreateTaskList():
     global linkingState
     linkingState = -1
@@ -423,6 +431,9 @@ def CreateTaskList():
         taskData[i].widgetReference.linkButton          = linkButton
         taskData[i].widgetReference.saveButton          = savebutton
         taskData[i].widgetReference.completionComboBox  = completion
+    savebutton = ctk.CTkButton(listFrame, text="Save All💾", width=50, font=("", 20), fg_color="green", hover_color="darkgreen")
+    savebutton.configure(command=SaveAllTaskData)
+    savebutton.grid(row=len(taskData), column=0, pady=5, padx=5)
 
 
 
@@ -466,7 +477,7 @@ def CanvasUpdate(task: TaskData):
     pix = page.get_pixmap(matrix=ppdf.Matrix(1, 1))  # 1x resolution
     templateImg = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
     #templateImg = templateImg.resize((int(p1[0] - p0[0]), int( (p1[0] - p0[0]) * ratio )))
-    templateImg = templateImg.resize((int(canvas.winfo_width()), int(canvas.winfo_width() * ratio )))
+    templateImg = templateImg.resize((int(canvas.winfo_width()-20), int((canvas.winfo_width()-20) * ratio )))
     currentCanvasPdfDisplayed = ImageTk.PhotoImage(templateImg)
     canvas.create_image(PTC(0), PTC(0), image=currentCanvasPdfDisplayed, anchor="nw")
 

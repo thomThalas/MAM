@@ -38,6 +38,7 @@ class TaskData():
     parentIndex: int
     widgetReference: TaskDataWidgets
     widgetList: list[ctk.CTkBaseClass]
+    hasBeenDeleted: bool
 
 
 
@@ -107,6 +108,9 @@ def SavePdf(task_: TaskData):
     
     for i, task in enumerate(taskList):
         
+        if task.hasBeenDeleted:
+            continue
+
         image_path = task.imagePath    
         
         page = doc[i]
@@ -132,6 +136,7 @@ def SavePdf(task_: TaskData):
                 os.remove(task.imagePath)
             except Exception as e:
                 print(e)
+            taskData[i].hasBeenDeleted = True
 
     name = task_.name+task_.completion.value+".pdf"
     print("saved:", name)
@@ -279,7 +284,7 @@ def Refresh():
             if dotList.pop() not in image_extensions:
                 continue
             name = ".".join(dotList)
-            taskData.append(TaskData(name, full_path, Completion.A, 0, -1, -1, TaskDataWidgets(), []))
+            taskData.append(TaskData(name, full_path, Completion.A, 0, -1, -1, TaskDataWidgets(), [], False))
     
     CreateTaskList()
 

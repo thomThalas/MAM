@@ -76,9 +76,14 @@ def SaveConfig():
         set_key("./config.env", var, getattr(config, var))
 
 
-def RenderIndicatorForText(textIndicator, label: ctk.CTkLabel):
-    label.configure(text=textIndicator)
-    window.after(1200, lambda: label.configure(text=""))
+def RenderIndicatorForText(textIndicator, label: ctk.CTkLabel, colorIndicator="red", returnToPreviousText=True):
+    pText = label._text
+    pColor = label._text_color
+    label.configure(text=textIndicator,text_color=colorIndicator)
+    if returnToPreviousText:
+        window.after(1200, lambda t=pText, c=pColor: label.configure(text=t, text_color=c))
+    else:
+        window.after(1200, lambda: label.configure(text="", text_color=""))
     
 
 LoadConfig()
@@ -295,6 +300,8 @@ def SavePdfButton(i, widgets: list[ctk.CTkBaseClass]):
             widget.destroy()
         if taskData[i].childIndex != -1:
             DestroyTaskDatawidgets(taskData[i].childIndex, True)
+    else:
+        RenderIndicatorForText("Saved.", widgets[0])
         
 
 def CompletionChanceCallback(choice, i):
@@ -443,7 +450,7 @@ def CreateTaskList():
         taskData[i].widgetReference.linkButton          = linkButton
         taskData[i].widgetReference.saveButton          = savebutton
         taskData[i].widgetReference.completionComboBox  = completion
-    savebutton = ctk.CTkButton(listFrame, text="Save All💾", width=50, font=("", 20), fg_color="green", hover_color="darkgreen")
+    savebutton = ctk.CTkButton(listFrame, text="Save All", width=50, font=("", 20), fg_color="green", hover_color="darkgreen")
     savebutton.configure(command=SaveAllTaskData)
     savebutton.grid(row=len(taskData), column=0, pady=5, padx=5)
 

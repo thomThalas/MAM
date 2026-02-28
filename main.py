@@ -213,6 +213,8 @@ for i, var in enumerate(configVariables):
 
 def PdfChangeButton():
     pdfPath = ctk.filedialog.askopenfilename(filetypes=[("Portable Document Format", ".pdf")])
+    if pdfPath == "":
+        return
     destination = "./template.pdf"
     shutil.copy2(pdfPath, destination)
     

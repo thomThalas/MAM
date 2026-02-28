@@ -1,3 +1,4 @@
+import asyncio
 import math
 import random
 from enum import Enum
@@ -68,10 +69,17 @@ def LoadConfig():
         setattr(config, var, os.getenv(var))
 
 
+
 def SaveConfig():
     print(config)
     for var in vars(config):
         set_key("./config.env", var, getattr(config, var))
+
+
+def RenderIndicatorForText(textIndicator, label: ctk.CTkLabel):
+    label.configure(text=textIndicator)
+    window.after(1200, lambda: label.configure(text=""))
+    
 
 LoadConfig()
 #endregion
@@ -209,8 +217,10 @@ ctk.CTkButton(configFrame, text="📁", width=50, font=("", 20), command=PdfChan
 
 
 
-
+saveConfigButtonIndicator = ctk.CTkLabel(configFrame, text="")
+saveConfigButtonIndicator.grid(row=len(configVariables)+2, column=0, padx=10, pady=5, sticky="n")
 def SaveConfigButton():
+    RenderIndicatorForText("Saved Settings", saveConfigButtonIndicator)
     print("saved config.")
     for i, var in enumerate(configVariables):
         if isConfigNumber[i]:
@@ -227,6 +237,8 @@ def SaveConfigButton():
     SaveConfig()
 ctk.CTkButton(configFrame, text="Save Settings", command=SaveConfigButton)\
     .grid(row=len(configVariables)+1, column=0, padx=10, pady=12)
+
+
 
 def RefreshButton():
     Refresh()

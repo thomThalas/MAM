@@ -210,7 +210,7 @@ configVariables = vars(config)
 configTextVariables: list[ctk.StringVar] = []
 
 def directoryButton(i):
-    directory = ctk.filedialog.askdirectory(); 
+    directory = ctk.filedialog.askdirectory(initialdir=PathFilter(configTextVariables[i].get()))
     if directory != "":
         configTextVariables[i].set(directory)
 

@@ -180,7 +180,7 @@ window.geometry("1300x750")
 window.title("MAM")
 
 
-window.iconbitmap("icon.ico")
+window.iconbitmap(PathFilter("./icon.ico"))
 
 #window.iconphoto(True, icon)
 #window.resizable(False, False)
@@ -236,7 +236,7 @@ def PdfChangeButton():
     pdfPath = ctk.filedialog.askopenfilename(filetypes=[("Portable Document Format", ".pdf")])
     if pdfPath == "":
         return
-    destination = "./template.pdf"
+    destination = PathFilter("./template.pdf")
     shutil.copy2(pdfPath, destination)
     
 currentRow = len(configVariables)

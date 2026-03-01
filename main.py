@@ -27,7 +27,8 @@ else:
 
 def PathFilter(path: str):
     newPath = path
-    newPath = newPath.replace(".", BASE_PATH, count=1)
+    if newPath[0] == ".":
+        newPath = newPath.replace(".", BASE_PATH, count=1)
     return newPath
 
 

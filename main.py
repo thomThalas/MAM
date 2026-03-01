@@ -11,9 +11,30 @@ import pymupdf as ppdf
 #FILES
 import shutil
 import os
+import sys
 from dotenv import load_dotenv, set_key
 import pdf
 from PIL import Image, ImageTk
+
+
+BASE_PATH = ""
+if getattr(sys, 'frozen', False):
+    # Running as compiled exe
+    BASE_PATH = os.path.dirname(sys.executable)
+else:
+    # Running as normal python script
+    BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+
+def PathFilter(path: str):
+    newPath = path
+    newPath = newPath.replace(".", BASE_PATH, count=1)
+    return newPath
+
+
+print("Executable path:", BASE_PATH)
+pdf.TEMPLATE_PATH = PathFilter(pdf.TEMPLATE_PATH)
+print(pdf.TEMPLATE_PATH)
+
 
 class Completion(Enum):
     A = "a"
@@ -59,7 +80,7 @@ class Config:
 
 #endregion
 #region config save and load
-load_dotenv("config.env")
+load_dotenv(PathFilter("./config.env"))
 
 
 
@@ -74,7 +95,7 @@ def LoadConfig():
 def SaveConfig():
     print(config)
     for var in vars(config):
-        set_key("./config.env", var, getattr(config, var))
+        set_key(PathFilter("./config.env"), var, getattr(config, var))
 
 
 def RenderIndicatorForText(textIndicator, label: ctk.CTkLabel, colorIndicator="red", returnToPreviousText=True):
@@ -140,7 +161,7 @@ def SavePdf(task_: TaskData):
 
     name = task_.name+task_.completion.value+".pdf"
     print("saved:", name)
-    doc.save(os.path.join(config.output_path, name))
+    doc.save(os.path.join(PathFilter(config.output_path), name))
     doc.close()
 
 def GetPdfWidthAndHeight():
@@ -279,8 +300,8 @@ image_extensions = [
 def Refresh():
     global taskData
     taskData = []
-    for filename in os.listdir(config.image_path):
-        full_path = os.path.join(config.image_path, filename)
+    for filename in os.listdir(PathFilter(config.image_path)):
+        full_path = os.path.join(PathFilter(config.image_path), filename)
         if os.path.isfile(full_path):
             dotList = filename.split(".")
             if dotList.pop() not in image_extensions:

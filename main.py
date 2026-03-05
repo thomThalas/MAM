@@ -17,6 +17,15 @@ import pdf
 from PIL import Image, ImageTk
 
 
+ROAMING_PATH = os.path.join(os.getenv("APPDATA"), "MAM")
+
+if not os.path.exists(ROAMING_PATH):
+    print("Creating roaming folder: MAM")
+    os.mkdir(ROAMING_PATH)
+print(ROAMING_PATH)
+
+
+
 BASE_PATH = ""
 if getattr(sys, 'frozen', False):
     # Running as compiled exe
@@ -25,16 +34,26 @@ else:
     # Running as normal python script
     BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
-def PathFilter(path: str):
+def PathFilter(path: str, inRoaming: bool = False):
     newPath = path
     if newPath[0] == ".":
-        newPath = newPath.replace(".", BASE_PATH, count=1)
+        if inRoaming:
+            if ROAMING_PATH == None:
+                return ""
+            newPath = newPath.replace(".", ROAMING_PATH, count=1)
+        else:
+            newPath = newPath.replace(".", BASE_PATH, count=1)
     return newPath
 
 
 print("Executable path:", BASE_PATH)
-pdf.TEMPLATE_PATH = PathFilter(pdf.TEMPLATE_PATH)
+pdf.TEMPLATE_PATH = PathFilter(pdf.TEMPLATE_PATH, True)
 print(pdf.TEMPLATE_PATH)
+
+if not os.path.exists(pdf.TEMPLATE_PATH):
+    shutil.copy2(PathFilter("./template.pdf"), pdf.TEMPLATE_PATH)
+if not os.path.exists(PathFilter("./config.env", True)):
+    shutil.copy2(PathFilter("./config.env"), PathFilter("./config.env", True))
 
 
 class Completion(Enum):
@@ -81,7 +100,7 @@ class Config:
 
 #endregion
 #region config save and load
-load_dotenv(PathFilter("./config.env"))
+load_dotenv(PathFilter("./config.env", True))
 
 
 
@@ -96,7 +115,7 @@ def LoadConfig():
 def SaveConfig():
     print(config)
     for var in vars(config):
-        set_key(PathFilter("./config.env"), var, getattr(config, var))
+        set_key(PathFilter("./config.env", True), var, getattr(config, var))
 
 
 def RenderIndicatorForText(textIndicator, label: ctk.CTkLabel, colorIndicator="red", returnToPreviousText=True):
@@ -236,9 +255,10 @@ for i, var in enumerate(configVariables):
 def PdfChangeButton():
     pdfPath = ctk.filedialog.askopenfilename(filetypes=[("Portable Document Format", ".pdf")])
     if pdfPath == "":
-        return
-    destination = PathFilter("./template.pdf")
-    shutil.copy2(pdfPath, destination)
+        return ""
+    destination = PathFilter("./template.pdf", True)
+    if destination != None:
+        shutil.copy2(pdfPath, destination)
     
 currentRow = len(configVariables)
 

@@ -16,8 +16,12 @@ from dotenv import load_dotenv, set_key
 import pdf
 from PIL import Image, ImageTk
 
+appDataPath = os.getenv("APPDATA")
+#TODO change for support to mac and linux 
+if appDataPath == None:
+    os.abort()
 
-ROAMING_PATH = os.path.join(os.getenv("APPDATA"), "MAM")
+ROAMING_PATH = os.path.join(appDataPath, "MAM")
 
 if not os.path.exists(ROAMING_PATH):
     print("Creating roaming folder: MAM")
@@ -350,7 +354,8 @@ def SavePdfButton(i, widgets: list[ctk.CTkBaseClass]):
         if taskData[i].childIndex != -1:
             DestroyTaskDatawidgets(taskData[i].childIndex, True)
     else:
-        RenderIndicatorForText("Saved.", widgets[0])
+        if type(widgets[0]) == ctk.CTkLabel:
+            RenderIndicatorForText("Saved.", widgets[0])
         
 
 def CompletionChanceCallback(choice, i):
@@ -499,9 +504,10 @@ def CreateTaskList():
         taskData[i].widgetReference.linkButton          = linkButton
         taskData[i].widgetReference.saveButton          = savebutton
         taskData[i].widgetReference.completionComboBox  = completion
-    savebutton = ctk.CTkButton(listFrame, text="Save All", width=50, font=("", 20), fg_color="green", hover_color="darkgreen")
-    savebutton.configure(command=SaveAllTaskData)
-    savebutton.grid(row=len(taskData), column=0, pady=5, padx=5)
+    if len(taskData) > 0:
+        savebutton = ctk.CTkButton(listFrame, text="Save All", width=50, font=("", 20), fg_color="green", hover_color="darkgreen")
+        savebutton.configure(command=SaveAllTaskData)
+        savebutton.grid(row=len(taskData), column=0, pady=5, padx=5)
 
 
 

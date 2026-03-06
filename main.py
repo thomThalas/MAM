@@ -4,6 +4,7 @@ import random
 from enum import Enum
 from lerp import *
 from dataclasses import dataclass
+import datetime
 #UI
 import customtkinter as ctk
 #PDF
@@ -141,6 +142,39 @@ def scale_to_fit(width: float, height: float, max_width: float, max_height: floa
     scale = min(max_width / width, max_height / height)
     return width * scale, height * scale
 
+def ModifyPdf(page: ppdf.Page, name: str, pageNumber, amountOfPages):
+    if config.render_textname == "1":
+        page.insert_text(ppdf.Point(25, int(config.top_padding)), name)
+    
+    text_instances = page.search_for("dato")
+    text_instances.extend(page.search_for("Side 1 af 1"))
+
+    for i, inst in enumerate(text_instances):
+        rect = inst
+        
+        if type(rect) == ppdf.Rect and i == 0:
+            oldY1 = rect.y1
+            rect.x1 = rect.x0+100
+            rect.y1 = rect.y0+30
+        page.add_redact_annot(rect, fill=(0, 1, 1))
+        if i == 0:
+            rect.y1 = oldY1
+        
+    page.apply_redactions()
+
+    for i, inst in enumerate(text_instances):
+        match i:
+            case 0:
+                timeText = datetime.datetime.today().strftime("%d-%B-%Y")
+                page.insert_text(inst.bl, timeText, fontsize=13)
+            case 1:
+                page.insert_text(inst.bl, F"Side {pageNumber} af {amountOfPages}")
+
+            
+
+    
+
+
 def SavePdf(task_: TaskData):
 
     src = ppdf.open(pdf.TEMPLATE_PATH)
@@ -173,9 +207,9 @@ def SavePdf(task_: TaskData):
 
 
         page.insert_image(rect, filename=image_path, rotate=task.rotation*90)
-        if config.render_textname == "1":
-            page.insert_text(ppdf.Point(25, int(config.top_padding)), task_.name)
+        ModifyPdf(page, task_.name, i+1, len(taskList))
 
+       
         img.close()
         if config.delete_image_files == "1":
             try:
@@ -557,8 +591,25 @@ def CanvasUpdate(task: TaskData):
 
     doc = ppdf.open(pdf.TEMPLATE_PATH)
     page = doc[0]
-    if config.render_textname == "1":
-        page.insert_text(ppdf.Point(25, int(config.top_padding)), task.name)
+    # if config.render_textname == "1":
+    #     page.insert_text(ppdf.Point(25, int(config.top_padding)), task.name)
+
+    pageNumber = 1
+    amountOfPages = 1
+    currentIndex = task.parentIndex
+    taskName = task.name
+    while currentIndex != -1:
+        pageNumber += 1
+        amountOfPages += 1
+        taskName = taskData[currentIndex].name
+        currentIndex = taskData[currentIndex].parentIndex
+    currentIndex = task.childIndex
+    while currentIndex != -1:
+        amountOfPages += 1
+        currentIndex = taskData[currentIndex].childIndex
+
+    ModifyPdf(page, taskName, pageNumber, amountOfPages)
+
     pix = page.get_pixmap(matrix=ppdf.Matrix(1, 1))  # 1x resolution
     templateImg = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
     #templateImg = templateImg.resize((int(p1[0] - p0[0]), int( (p1[0] - p0[0]) * ratio )))

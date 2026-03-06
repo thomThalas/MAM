@@ -67,11 +67,12 @@ class Completion(Enum):
 
 @dataclass
 class TaskDataWidgets:
-    linkButton: ctk.CTkButton | None =              None
-    linkText: ctk.CTkLabel | None =                 None
-    saveButton: ctk.CTkButton | None =              None
-    completionComboBox: ctk.CTkComboBox | None =    None
-    uiColor: str | None =                           None
+    linkButton: ctk.CTkButton               | None = None
+    linkText: ctk.CTkLabel                  | None = None
+    saveButton: ctk.CTkButton               | None = None
+    completionComboBox: ctk.CTkComboBox     | None = None
+    uiColor: str                            | None = None
+    nameEntry: ctk.CTkEntry                 | None = None
 
 @dataclass
 class TaskData():
@@ -354,8 +355,10 @@ def SavePdfButton(i, widgets: list[ctk.CTkBaseClass]):
         if taskData[i].childIndex != -1:
             DestroyTaskDatawidgets(taskData[i].childIndex, True)
     else:
-        if type(widgets[0]) == ctk.CTkLabel:
-            RenderIndicatorForText("Saved.", widgets[0])
+        #TODO
+        pass
+        #if type(widgets[0]) == ctk.CTkLabel:
+        #    RenderIndicatorForText("Saved.", widgets[0])
         
 
 def CompletionChanceCallback(choice, i):
@@ -400,7 +403,7 @@ def SetColorsAfterLink():
 
 
 linkingState = -1
-def LinkButtonCallback(taskIndex):
+def LinkButtonCallback(taskIndex: int):
     global linkingState
     #Start link
     if linkingState == -1 and taskData[taskIndex].childIndex == -1:
@@ -443,6 +446,7 @@ def LinkButtonCallback(taskIndex):
         #taskData[linkingState].widgetReference.linkText.configure(                  text_color=color)
         taskData[taskIndex].widgetReference.saveButton.destroy()
         taskData[taskIndex].widgetReference.completionComboBox.destroy()
+        taskData[taskIndex].widgetReference.nameEntry.destroy()
         
 
         SetColorsAfterLink()
@@ -456,6 +460,9 @@ def SaveAllTaskData():
     if config.delete_image_files == "1":
         listFrame.winfo_children()[-1].destroy()
 
+def TaskNameChangedCallback(x,y,z, localI: int, textVar: ctk.CTkEntry):
+    taskData[localI].name = textVar.get()
+
 def CreateTaskList():
     global linkingState
     linkingState = -1
@@ -464,8 +471,11 @@ def CreateTaskList():
         child.destroy()
         
     for i, task in enumerate(taskData):
-        label = ctk.CTkLabel(listFrame, text=task.name)
+        textVariable = ctk.StringVar(value=task.name)
+        textVariable.trace_add("write", lambda x,y,z, localI=i, textVar=textVariable: TaskNameChangedCallback(x,y,z,localI,textVar))
+        label = ctk.CTkEntry(listFrame, textvariable=textVariable)
         label.grid(row=i, column=0, padx=10, pady=5, sticky="w")
+
         completion = ctk.CTkComboBox(listFrame, values=["A", "B", "C"], width=10, command=lambda choice, localI=i: CompletionChanceCallback(choice, localI))
         completion.grid(row=i, column=1, padx=10, pady=5, sticky="w")
 
@@ -504,6 +514,7 @@ def CreateTaskList():
         taskData[i].widgetReference.linkButton          = linkButton
         taskData[i].widgetReference.saveButton          = savebutton
         taskData[i].widgetReference.completionComboBox  = completion
+        taskData[i].widgetReference.nameEntry           = label
     if len(taskData) > 0:
         savebutton = ctk.CTkButton(listFrame, text="Save All", width=50, font=("", 20), fg_color="green", hover_color="darkgreen")
         savebutton.configure(command=SaveAllTaskData)

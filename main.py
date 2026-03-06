@@ -150,16 +150,7 @@ def ModifyPdf(page: ppdf.Page, name: str, pageNumber, amountOfPages):
     text_instances.extend(page.search_for("Side 1 af 1"))
 
     for i, inst in enumerate(text_instances):
-        rect = inst
-        
-        if type(rect) == ppdf.Rect and i == 0:
-            oldY1 = rect.y1
-            rect.x1 = rect.x0+100
-            rect.y1 = rect.y0+30
-        page.add_redact_annot(rect, fill=(0, 1, 1))
-        if i == 0:
-            rect.y1 = oldY1
-        
+        page.add_redact_annot(inst, fill=(1, 1, 1))
     page.apply_redactions()
 
     for i, inst in enumerate(text_instances):

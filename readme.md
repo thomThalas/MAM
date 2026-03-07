@@ -21,7 +21,7 @@ The first will be the first page while the second will be the second page. If yo
 
 ![](/README_files/link_tasks.gif)
 
-# Settings
+## Settings
 
 * On the left side there are a couple of settings.
 * The first 2 options `image_path` and `output_path` are the path to the folder where all the images are and where to output the pdf files.
@@ -33,3 +33,7 @@ The first will be the first page while the second will be the second page. If yo
 * `delete_image_files` changes whether or not to delete image files after you have saved the pdf.
 * `render_textname` decides whether or not to display the task name in the pdf.
 * change template button gives you a prompt to change the current `template.pdf`
+
+## Setting up the template
+Do as shown here:
+![](/README_files/template_creation.gif)

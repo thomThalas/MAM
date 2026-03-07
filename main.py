@@ -17,8 +17,9 @@ from dotenv import load_dotenv, set_key
 import pdf
 from PIL import Image, ImageTk
 
-
+appDataPath = None
 def LinuxConfigSetup():
+    global appDataPath
     appDataPath = os.getenv("XDG_CONFIG_HOME")
     if appDataPath == None:
         appDataPath = "~/.config"
@@ -242,12 +243,18 @@ ctk.set_default_color_theme("dark-blue")
 ctk.set_appearance_mode("dark")
 
 
+
+
+
 window = ctk.CTk()
 window.geometry("1300x750")
 window.title("MAM")
 
+didNerdFontLoad = ctk.FontManager.load_font(PathFilter("./SymbolsNerdFontMono-Regular.ttf"))
+nerdFont = ctk.CTkFont("Symbols Nerd Font Mono", 20, "normal", "roman", False, False)
 
-window.iconbitmap(PathFilter("./icon.ico"))
+if PLATFORM != "linux" and PLATFORM != "linux2":
+    window.iconbitmap(PathFilter("./icon.ico"))
 
 #window.iconphoto(True, icon)
 #window.resizable(False, False)
@@ -295,8 +302,8 @@ for i, var in enumerate(configVariables):
         ctk.CTkEntry(configFrame, placeholder_text=getattr(config, var), textvariable=configTextVariables[i])\
             .grid(row=i, column=1, padx=0, pady=5, sticky="ew")
     if isConfigFolderPath[i] and not isConfigNumber[i]:
-        ctk.CTkButton(configFrame, text="📁", width=50, font=("", 20), command=lambda localI=i: directoryButton(localI))\
-            .grid(row=i, column=2, pady=5, padx=5)
+        ctk.CTkButton(configFrame, text="\ueaf7", width=50, font=nerdFont, command=lambda localI=i: directoryButton(localI))\
+            .grid(row=i, column=2, pady=5, padx=5) #📁
 
 
 def PdfChangeButton():
@@ -311,8 +318,8 @@ currentRow = len(configVariables)
 
 ctk.CTkLabel(configFrame, text="change template")\
     .grid(row=currentRow, column=0, padx=10, pady=5, sticky="w")
-ctk.CTkButton(configFrame, text="📁", width=50, font=("", 20), command=PdfChangeButton)\
-    .grid(row=currentRow, column=1, pady=5, padx=5, sticky="w")
+ctk.CTkButton(configFrame, text="\ueaf7", width=50, font=nerdFont, command=PdfChangeButton)\
+    .grid(row=currentRow, column=1, pady=5, padx=5, sticky="w") #📁
 
     
 
@@ -343,8 +350,8 @@ ctk.CTkButton(configFrame, text="Save Settings", command=SaveConfigButton)\
 
 def RefreshButton():
     Refresh()
-ctk.CTkButton(configFrame, text="⟲→", width=50, font=("", 20), command=RefreshButton)\
-    .grid(row=len(configVariables)+1, column=1, padx=10, pady=12, sticky="e")
+ctk.CTkButton(configFrame, text="\udb81\udc53\uea9c", width=50, font=nerdFont, command=RefreshButton)\
+    .grid(row=len(configVariables)+1, column=1, padx=10, pady=12, sticky="e") #⟲→
 
 
 
@@ -518,7 +525,7 @@ def CreateTaskList():
         child.destroy()
         
     for i, task in enumerate(taskData):
-        rowFrame = ctk.CTkFrame(listFrame, fg_color=("gray80", "gray23") if (i % 2) == 0 else ("gray90", "gray13"))
+        rowFrame = ctk.CTkFrame(listFrame, fg_color=("gray86", "gray17") if (i % 2) == 0 else ("gray90", "gray13"))
         rowFrame.grid_columnconfigure(0, weight=1)
         rowFrame.grid(row=i, column=0, sticky="nwes")
         textVariable = ctk.StringVar(value=task.name)
@@ -539,23 +546,23 @@ def CreateTaskList():
         linkText.grid(row=0, column=2, padx=10, pady=5, sticky="w")
 
         #maroon1 and maroon3 for second linking state⛓
-        linkButton = ctk.CTkButton(rowFrame, text="🔗", width=50, font=("", 20), fg_color="purple1", hover_color="purple3") 
+        linkButton = ctk.CTkButton(rowFrame, text="\uf0c1", width=50, font=nerdFont, fg_color="purple1", hover_color="purple3") #🔗
         linkButton.configure(command=lambda localI=i: LinkButtonCallback(localI))
         linkButton.grid(row=0, column=3, pady=5, padx=5)
 
 
         #TODO rotation implementation
-        #previewbutton = ctk.CTkButton(listFrame, text="⟳", width=50, font=("", 20), fg_color=("red" if aspect > 1 else "green"), hover_color=("darkred" if aspect > 1 else "darkgreen"))
+        #previewbutton = ctk.CTkButton(listFrame, text="⟳", width=50, font=nerdFont, fg_color=("red" if aspect > 1 else "green"), hover_color=("darkred" if aspect > 1 else "darkgreen"))
         #previewbutton.configure(command=lambda localI=i: RotateTaskDataImage(taskData[localI]))
         #previewbutton.grid(row=i, column=2, pady=5, padx=5)
 
-        previewbutton = ctk.CTkButton(rowFrame, text="👁", width=50, font=("", 20), fg_color="green", hover_color="darkgreen")
+        previewbutton = ctk.CTkButton(rowFrame, text="\udb83\uddca", width=50, font=nerdFont, fg_color="green", hover_color="darkgreen") #👁
         previewbutton.configure(command=lambda localI=i: CanvasUpdate(taskData[localI]))
         previewbutton.grid(row=0, column=4, pady=5, padx=5)
 
         
 
-        savebutton = ctk.CTkButton(rowFrame, text="💾", width=50, font=("", 20), fg_color="green", hover_color="darkgreen")
+        savebutton = ctk.CTkButton(rowFrame, text="\udb80\udd93", width=50, font=nerdFont, fg_color="green", hover_color="darkgreen") #💾
         savebutton.configure(command=lambda localI=i, widgets=[label,completion,savebutton,previewbutton,linkButton,linkText]: SavePdfButton(localI, widgets))
         savebutton.grid(row=0, column=5, pady=5, padx=5)
 
@@ -566,9 +573,15 @@ def CreateTaskList():
         taskData[i].widgetReference.completionComboBox  = completion
         taskData[i].widgetReference.nameEntry           = label
     if len(taskData) > 0:
-        savebutton = ctk.CTkButton(listFrame, text="Save All", width=50, font=("", 20), fg_color="green", hover_color="darkgreen")
+        rowFrame = ctk.CTkFrame(listFrame, fg_color=("gray80", "gray23") if (1 % 2) == 0 else ("gray90", "gray13"))
+        #rowFrame.grid_columnconfigure(0, weight=1)
+        rowFrame.grid(row=len(taskData), column=0, sticky="e", padx=5)
+        savebutton = ctk.CTkButton(rowFrame, text="\udb80\udd94", width=50, font=nerdFont, fg_color="green", hover_color="darkgreen") #Save All
         savebutton.configure(command=SaveAllTaskData)
-        savebutton.grid(row=len(taskData), column=0, pady=5, padx=5)
+        savebutton.grid(row=0, column=0)
+        #savebutton.pack(side="right")
+        
+        #savebutton.grid(row=len(taskData), column=0, pady=5, padx=5)
 
 
 

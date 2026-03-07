@@ -17,17 +17,34 @@ from dotenv import load_dotenv, set_key
 import pdf
 from PIL import Image, ImageTk
 
-appDataPath = os.getenv("APPDATA")
-#TODO change for support to mac and linux 
+
+def LinuxConfigSetup():
+    appDataPath = os.getenv("XDG_CONFIG_HOME")
+    if appDataPath == None:
+        appDataPath = "~/.config"
+
+#WIN/MAC/LINUX
+PLATFORM=sys.platform
+match PLATFORM:
+    case "win32":
+        appDataPath = os.getenv("APPDATA")
+    case "darwin":
+        print("NOO MAC")
+        appDataPath = None
+    case "linux":
+        LinuxConfigSetup()
+    case "linux2":
+        LinuxConfigSetup()
+
 if appDataPath == None:
     os.abort()
 
-ROAMING_PATH = os.path.join(appDataPath, "MAM")
+DATA_PATH = os.path.join(appDataPath, "MAM")
 
-if not os.path.exists(ROAMING_PATH):
+if not os.path.exists(DATA_PATH):
     print("Creating roaming folder: MAM")
-    os.mkdir(ROAMING_PATH)
-print(ROAMING_PATH)
+    os.mkdir(DATA_PATH)
+print(DATA_PATH)
 
 
 
@@ -43,9 +60,9 @@ def PathFilter(path: str, inRoaming: bool = False):
     newPath = path
     if newPath[0] == ".":
         if inRoaming:
-            if ROAMING_PATH == None:
+            if DATA_PATH == None:
                 return ""
-            newPath = newPath.replace(".", ROAMING_PATH, count=1)
+            newPath = newPath.replace(".", DATA_PATH, count=1)
         else:
             newPath = newPath.replace(".", BASE_PATH, count=1)
     return newPath
@@ -252,7 +269,7 @@ configFrame.grid_columnconfigure(2, weight=0)
 # image_path_var = ctk.StringVar(value=config.image_path)
 # ctk.CTkEntry(configFrame, placeholder_text="Path", textvariable=image_path_var).pack(padx=10, pady=0, side="right")
 
-# ctk.CTkLabel(configFrame, text="sadasasdasdasd").pack(padx=10, pady=0, side="left")
+# ctk.CTkLabel(configFrame, text="sadasasdasdasd").zpack(padx=10, pady=0, side="left")
 # ctk.CTkEntry(configFrame, placeholder_text="testy").pack(padx=10, pady=0, side="right")
 
 configVariables = vars(config)
@@ -469,9 +486,14 @@ def LinkButtonCallback(taskIndex: int):
         #assert taskData[linkingState].widgetReference.linkText is not None 
         linkText.configure(                                                         text_color=color)
         #taskData[linkingState].widgetReference.linkText.configure(                  text_color=color)
-        taskData[taskIndex].widgetReference.saveButton.destroy()
-        taskData[taskIndex].widgetReference.completionComboBox.destroy()
-        taskData[taskIndex].widgetReference.nameEntry.destroy()
+        #taskData[taskIndex].widgetReference.saveButton.destroy()
+        #taskData[taskIndex].widgetReference.completionComboBox.destroy()
+        #taskData[taskIndex].widgetReference.nameEntry.destroy()
+        taskData[taskIndex].widgetReference.saveButton.configure(state="disabled")
+        taskData[taskIndex].widgetReference.completionComboBox.configure(state="disabled")
+        taskData[taskIndex].widgetReference.nameEntry.configure(state="disabled")
+        
+        
         
 
         SetColorsAfterLink()
@@ -496,13 +518,16 @@ def CreateTaskList():
         child.destroy()
         
     for i, task in enumerate(taskData):
+        rowFrame = ctk.CTkFrame(listFrame, fg_color=("gray80", "gray23") if (i % 2) == 0 else ("gray90", "gray13"))
+        rowFrame.grid_columnconfigure(0, weight=1)
+        rowFrame.grid(row=i, column=0, sticky="nwes")
         textVariable = ctk.StringVar(value=task.name)
         textVariable.trace_add("write", lambda x,y,z, localI=i, textVar=textVariable: TaskNameChangedCallback(x,y,z,localI,textVar))
-        label = ctk.CTkEntry(listFrame, textvariable=textVariable)
-        label.grid(row=i, column=0, padx=10, pady=5, sticky="w")
+        label = ctk.CTkEntry(rowFrame, textvariable=textVariable)
+        label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
 
-        completion = ctk.CTkComboBox(listFrame, values=["A", "B", "C"], width=10, command=lambda choice, localI=i: CompletionChanceCallback(choice, localI))
-        completion.grid(row=i, column=1, padx=10, pady=5, sticky="w")
+        completion = ctk.CTkComboBox(rowFrame, values=["A", "B", "C"], width=10, command=lambda choice, localI=i: CompletionChanceCallback(choice, localI))
+        completion.grid(row=0, column=1, padx=10, pady=5, sticky="w")
 
         #pix = ppdf.Pixmap(taskData[i].imagePath)
         #img_width = pix.width
@@ -510,13 +535,13 @@ def CreateTaskList():
         #aspect = img_height / img_width
 
 
-        linkText = ctk.CTkLabel(listFrame, text="")
-        linkText.grid(row=i, column=2, padx=10, pady=5, sticky="w")
+        linkText = ctk.CTkLabel(rowFrame, text="")
+        linkText.grid(row=0, column=2, padx=10, pady=5, sticky="w")
 
         #maroon1 and maroon3 for second linking state⛓
-        linkButton = ctk.CTkButton(listFrame, text="🔗", width=50, font=("", 20), fg_color="purple1", hover_color="purple3") 
+        linkButton = ctk.CTkButton(rowFrame, text="🔗", width=50, font=("", 20), fg_color="purple1", hover_color="purple3") 
         linkButton.configure(command=lambda localI=i: LinkButtonCallback(localI))
-        linkButton.grid(row=i, column=3, pady=5, padx=5)
+        linkButton.grid(row=0, column=3, pady=5, padx=5)
 
 
         #TODO rotation implementation
@@ -524,15 +549,15 @@ def CreateTaskList():
         #previewbutton.configure(command=lambda localI=i: RotateTaskDataImage(taskData[localI]))
         #previewbutton.grid(row=i, column=2, pady=5, padx=5)
 
-        previewbutton = ctk.CTkButton(listFrame, text="👁", width=50, font=("", 20), fg_color="green", hover_color="darkgreen")
+        previewbutton = ctk.CTkButton(rowFrame, text="👁", width=50, font=("", 20), fg_color="green", hover_color="darkgreen")
         previewbutton.configure(command=lambda localI=i: CanvasUpdate(taskData[localI]))
-        previewbutton.grid(row=i, column=4, pady=5, padx=5)
+        previewbutton.grid(row=0, column=4, pady=5, padx=5)
 
         
 
-        savebutton = ctk.CTkButton(listFrame, text="💾", width=50, font=("", 20), fg_color="green", hover_color="darkgreen")
+        savebutton = ctk.CTkButton(rowFrame, text="💾", width=50, font=("", 20), fg_color="green", hover_color="darkgreen")
         savebutton.configure(command=lambda localI=i, widgets=[label,completion,savebutton,previewbutton,linkButton,linkText]: SavePdfButton(localI, widgets))
-        savebutton.grid(row=i, column=5, pady=5, padx=5)
+        savebutton.grid(row=0, column=5, pady=5, padx=5)
 
         taskData[i].widgetList = [label,completion,savebutton,previewbutton,linkButton,linkText]
         taskData[i].widgetReference.linkText            = linkText

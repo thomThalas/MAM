@@ -22,7 +22,7 @@ def LinuxConfigSetup():
     global appDataPath
     appDataPath = os.getenv("XDG_CONFIG_HOME")
     if appDataPath == None:
-        appDataPath = "~/.config"
+        appDataPath = os.path.expanduser("~/.config")
 
 #WIN/MAC/LINUX
 PLATFORM=sys.platform
@@ -349,8 +349,8 @@ ctk.CTkButton(configFrame, text="Save Settings", command=SaveConfigButton)\
 
 
 def RefreshButton():
-    Refresh()
-ctk.CTkButton(configFrame, text="\udb81\udc53", width=50, font=nerdFont, command=RefreshButton)\
+    Refresh()                    ############
+ctk.CTkButton(configFrame, text="󰑐\uea9c", width=50, font=nerdFont, command=RefreshButton)\
     .grid(row=len(configVariables)+1, column=1, padx=10, pady=12, sticky="e") #⟲→
 
 
@@ -562,7 +562,7 @@ def CreateTaskList():
 
         
 
-        savebutton = ctk.CTkButton(rowFrame, text="\udb80\udd93", width=50, font=nerdFont, fg_color="green", hover_color="darkgreen") #💾
+        savebutton = ctk.CTkButton(rowFrame, text="󰆓", width=50, font=nerdFont, fg_color="green", hover_color="darkgreen") #💾
         savebutton.configure(command=lambda localI=i, widgets=[label,completion,savebutton,previewbutton,linkButton,linkText]: SavePdfButton(localI, widgets))
         savebutton.grid(row=0, column=5, pady=5, padx=5)
 
@@ -576,7 +576,7 @@ def CreateTaskList():
         rowFrame = ctk.CTkFrame(listFrame, fg_color=("gray80", "gray23") if (1 % 2) == 0 else ("gray90", "gray13"))
         #rowFrame.grid_columnconfigure(0, weight=1)
         rowFrame.grid(row=len(taskData), column=0, sticky="e", padx=5)
-        savebutton = ctk.CTkButton(rowFrame, text="\udb80\udd94", width=50, font=nerdFont, fg_color="green", hover_color="darkgreen") #Save All
+        savebutton = ctk.CTkButton(rowFrame, text="󰆔", width=50, font=nerdFont, fg_color="green", hover_color="darkgreen") #Save All
         savebutton.configure(command=SaveAllTaskData)
         savebutton.grid(row=0, column=0)
         #savebutton.pack(side="right")

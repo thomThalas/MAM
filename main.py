@@ -28,8 +28,7 @@ match PLATFORM:
     case "win32":
         appDataPath = os.getenv("APPDATA")
     case "darwin":
-        print("NOO MAC")
-        appDataPath = None
+        appDataPath = os.path.expanduser("~/Library/Preferences")
     case "linux":
         LinuxConfigSetup()
     case "linux2":

@@ -368,8 +368,7 @@ listFrame.grid_columnconfigure(0, weight=1)
 listFrame.grid(row=0, column=1, sticky="nwes", padx=5, pady=5)
 
 image_extensions = [
-  "jpg", "jpeg", "png", "gif", "webp", "svg", "avif", "apng", 
-  "bmp", "ico", "tiff", "tif", "heic", "heif", "raw"
+  "jpg", "jpeg", "png", "bmp", "gif", "tiff", "ppm"
 ]
 
 def Refresh():

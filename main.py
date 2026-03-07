@@ -350,7 +350,7 @@ ctk.CTkButton(configFrame, text="Save Settings", command=SaveConfigButton)\
 
 def RefreshButton():
     Refresh()
-ctk.CTkButton(configFrame, text="\udb81\udc53\uea9c", width=50, font=nerdFont, command=RefreshButton)\
+ctk.CTkButton(configFrame, text="\udb81\udc53", width=50, font=nerdFont, command=RefreshButton)\
     .grid(row=len(configVariables)+1, column=1, padx=10, pady=12, sticky="e") #⟲→
 
 

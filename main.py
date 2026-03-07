@@ -556,7 +556,7 @@ def CreateTaskList():
         #previewbutton.configure(command=lambda localI=i: RotateTaskDataImage(taskData[localI]))
         #previewbutton.grid(row=i, column=2, pady=5, padx=5)
 
-        previewbutton = ctk.CTkButton(rowFrame, text="\udb83\uddca", width=50, font=nerdFont, fg_color="green", hover_color="darkgreen") #👁
+        previewbutton = ctk.CTkButton(rowFrame, text="󰷊", width=50, font=nerdFont, fg_color="green", hover_color="darkgreen") #👁
         previewbutton.configure(command=lambda localI=i: CanvasUpdate(taskData[localI]))
         previewbutton.grid(row=0, column=4, pady=5, padx=5)
 

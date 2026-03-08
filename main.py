@@ -15,29 +15,29 @@ from dotenv import load_dotenv, set_key
 import pdf
 from PIL import Image, ImageTk
 
-appDataPath = None
+usrDataPath = None
 def LinuxConfigSetup():
-    global appDataPath
-    appDataPath = os.getenv("XDG_CONFIG_HOME")
-    if appDataPath == None:
-        appDataPath = os.path.expanduser("~/.config")
+    global usrDataPath
+    usrDataPath = os.getenv("XDG_CONFIG_HOME")
+    if usrDataPath == None:
+        usrDataPath = os.path.expanduser("~/.config")
 
 #WIN/MAC/LINUX
 PLATFORM=sys.platform
 match PLATFORM:
     case "win32":
-        appDataPath = os.getenv("APPDATA")
+        usrDataPath = os.getenv("APPDATA")
     case "darwin":
-        appDataPath = os.path.expanduser("~/Library/Preferences")
+        usrDataPath = os.path.expanduser("~/Library/Preferences")
     case "linux":
         LinuxConfigSetup()
     case "linux2":
         LinuxConfigSetup()
 
-if appDataPath == None:
+if usrDataPath == None:
     os.abort()
 
-DATA_PATH = os.path.join(appDataPath, "MAM")
+DATA_PATH = os.path.join(usrDataPath, "MAM")
 
 if not os.path.exists(DATA_PATH):
     print("Creating roaming folder: MAM")
@@ -526,8 +526,8 @@ def CreateTaskList():
         rowFrame.grid(row=i, column=0, sticky="nwes")
         textVariable = ctk.StringVar(value=task.name)
         textVariable.trace_add("write", lambda x,y,z, localI=i, textVar=textVariable: TaskNameChangedCallback(x,y,z,localI,textVar))
-        label = ctk.CTkEntry(rowFrame, textvariable=textVariable)
-        label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+        nameEntry = ctk.CTkEntry(rowFrame, textvariable=textVariable)
+        nameEntry.grid(row=0, column=0, padx=10, pady=5, sticky="w")
 
         completion = ctk.CTkComboBox(rowFrame, values=["A", "B", "C"], width=10, command=lambda choice, localI=i: CompletionChanceCallback(choice, localI))
         completion.grid(row=0, column=1, padx=10, pady=5, sticky="w")
@@ -559,15 +559,15 @@ def CreateTaskList():
         
 
         savebutton = ctk.CTkButton(rowFrame, text="󰆓", width=50, font=nerdFont, fg_color="green", hover_color="darkgreen") #💾
-        savebutton.configure(command=lambda localI=i, widgets=[label,completion,savebutton,previewbutton,linkButton,linkText]: SavePdfButton(localI, widgets))
+        savebutton.configure(command=lambda localI=i, widgets=[nameEntry,completion,savebutton,previewbutton,linkButton,linkText]: SavePdfButton(localI, widgets))
         savebutton.grid(row=0, column=5, pady=5, padx=5)
 
-        taskData[i].widgetList = [label,completion,savebutton,previewbutton,linkButton,linkText]
+        taskData[i].widgetList = [nameEntry,completion,savebutton,previewbutton,linkButton,linkText]
         taskData[i].widgetReference.linkText            = linkText
         taskData[i].widgetReference.linkButton          = linkButton
         taskData[i].widgetReference.saveButton          = savebutton
         taskData[i].widgetReference.completionComboBox  = completion
-        taskData[i].widgetReference.nameEntry           = label
+        taskData[i].widgetReference.nameEntry           = nameEntry
     
     if len(taskData) > 0:
         rowFrame = ctk.CTkFrame(listFrame, fg_color=("gray80", "gray23") if (1 % 2) == 0 else ("gray90", "gray13"))

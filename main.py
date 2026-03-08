@@ -379,7 +379,7 @@ def Refresh():
                 continue
             name = ".".join(dotList)
             taskData.append(TaskData(name, full_path, Completion.A, 0, -1, -1, TaskDataWidgets(), [], False))
-    taskData.sort(key=lambda task: len(task.name), reverse=False)
+    taskData.sort(key=lambda task: task.name, reverse=False)
     CreateTaskList()
 
 

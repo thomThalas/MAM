@@ -379,7 +379,7 @@ def Refresh():
                 continue
             name = ".".join(dotList)
             taskData.append(TaskData(name, full_path, Completion.A, 0, -1, -1, TaskDataWidgets(), [], False))
-    
+    taskData.sort(key=lambda task: len(task.name), reverse=False)
     CreateTaskList()
 
 
@@ -568,6 +568,7 @@ def CreateTaskList():
         taskData[i].widgetReference.saveButton          = savebutton
         taskData[i].widgetReference.completionComboBox  = completion
         taskData[i].widgetReference.nameEntry           = label
+    
     if len(taskData) > 0:
         rowFrame = ctk.CTkFrame(listFrame, fg_color=("gray80", "gray23") if (1 % 2) == 0 else ("gray90", "gray13"))
         #rowFrame.grid_columnconfigure(0, weight=1)

@@ -510,7 +510,7 @@ def SaveAllTaskData():
     if config.delete_image_files == "1":
         listFrame.winfo_children()[-1].destroy()
 
-def TaskNameChangedCallback(x,y,z, localI: int, textVar: ctk.CTkEntry):
+def TaskNameChangedCallback(x,y,z, localI: int, textVar: ctk.StringVar):
     taskData[localI].name = textVar.get()
 
 def CreateTaskList():

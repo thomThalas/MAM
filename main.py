@@ -202,6 +202,7 @@ def SavePdf(task_: TaskData):
         page = doc[i]
 
         img = Image.open(image_path)
+        img = img.rotate(-90, expand=True) #TODO rotation
         
 
         # width = page.rect.width-int(config.image_padding_right)
@@ -649,6 +650,7 @@ def CanvasUpdate(task: TaskData):
         #canvas.create_rectangle(p0[0], p0[1], p1[0], p1[1], fill="darkred")
     else:
         imgData = Image.open(task.imagePath)
+        imgData = imgData.rotate(-90, expand=True) #TODO rotation
         imgData_width = imgData.width
         imgData_height = imgData.height
 

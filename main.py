@@ -3,6 +3,7 @@ from enum import Enum
 from lerp import *
 from dataclasses import dataclass
 import datetime
+import io
 #UI
 import customtkinter as ctk
 #PDF
@@ -230,7 +231,7 @@ def SavePdf(task_: TaskData):
         page = doc[i]
 
         img = Image.open(image_path)
-        img = img.rotate(-task.rotation*90, expand=True)
+        #img = img.rotate(-task.rotation*90, expand=True)
         
 
         # width = page.rect.width-int(config.image_padding_right)
@@ -238,10 +239,16 @@ def SavePdf(task_: TaskData):
 
         imgWidth, imgHeight = scale_to_fit(img.width, img.height, page.rect.width-int(config.left_right_padding)*2, page.rect.height-float(config.top_padding)-int(config.bottom_padding)-20)
 
-        rect = pdf.CreateRatioRect(image_path, page.rect.width/2-imgWidth/2, page.rect.width/2+imgWidth/2, int(config.top_padding)+20)
 
+        #rect = pdf.CreateRatioRect(image_path, page.rect.width/2-imgWidth/2, page.rect.width/2+imgWidth/2, int(config.top_padding)+20)
+        #rect = pdf.CreateRatioRect(image_path, page.rect.width/2-imgHeight/2, page.rect.width/2+imgHeight/2, )
 
-        page.insert_image(rect, filename=image_path, rotate=task.rotation*90)
+        dimensionDiff = abs(page.rect.width - page.rect.height) #TODO
+
+        rect = ppdf.Rect(-dimensionDiff+int(config.top_padding)+20, page.rect.height/2+imgWidth/2, -dimensionDiff+int(config.top_padding)+20+imgHeight, page.rect.height/2-imgWidth/2)
+
+        page.insert_image(rect, filename=image_path, rotate=task.rotation*0)
+        #page.insert_image(rect, filename=image_path)
         ModifyPdf(page, task_.name, i+1, len(taskList))
 
        
@@ -429,7 +436,6 @@ def SavePdfButton(i, widgets: list[ctk.CTkBaseClass]):
         if taskData[i].childIndex != -1:
             DestroyTaskDatawidgets(taskData[i].childIndex, True)
     else:
-        #TODO
         pass
         if type(widgets[0]) == ctk.CTkEntry:
             #RenderIndicatorForText("Saved.", widgets[0])

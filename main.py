@@ -147,6 +147,15 @@ def RenderIndicatorForText(textIndicator, label: ctk.CTkLabel, colorIndicator="r
         window.after(1200, lambda t=pText, c=pColor: label.configure(text=t, text_color=c))
     else:
         window.after(1200, lambda: label.configure(text="", text_color=""))
+
+def RenderIndicator(entry: ctk.CTkEntry | ctk.CTkButton | ctk.CTkLabel, colorIndicator="red", returnToPreviousText=True):
+    pColor = entry._fg_color
+    entry.configure(fg_color=(colorIndicator, colorIndicator))
+    #entry.configure(text_color=(colorIndicator, colorIndicator))
+    if returnToPreviousText:
+        window.after(1200, lambda c=pColor: entry.configure(fg_color=c))
+    else:
+        window.after(1200, lambda: entry.configure(text_color=""))
     
 
 LoadConfig()
@@ -202,7 +211,7 @@ def SavePdf(task_: TaskData):
         page = doc[i]
 
         img = Image.open(image_path)
-        img = img.rotate(-90, expand=True) #TODO rotation
+        img = img.rotate(-task.rotation*90, expand=True)
         
 
         # width = page.rect.width-int(config.image_padding_right)
@@ -403,8 +412,10 @@ def SavePdfButton(i, widgets: list[ctk.CTkBaseClass]):
     else:
         #TODO
         pass
-        #if type(widgets[0]) == ctk.CTkLabel:
-        #    RenderIndicatorForText("Saved.", widgets[0])
+        if type(widgets[0]) == ctk.CTkEntry:
+            #RenderIndicatorForText("Saved.", widgets[0])
+            #RenderIndicatorForEntries(widgets[0])
+            RenderIndicator(widgets[0])
         
 
 def CompletionChanceCallback(choice, i):
@@ -495,7 +506,7 @@ def LinkButtonCallback(taskIndex: int):
         #taskData[taskIndex].widgetReference.nameEntry.destroy()
         taskData[taskIndex].widgetReference.saveButton.configure(state="disabled")
         taskData[taskIndex].widgetReference.completionComboBox.configure(state="disabled")
-        taskData[taskIndex].widgetReference.nameEntry.configure(state="disabled")
+        taskData[taskIndex].widgetReference.nameEntry.configure(state="disabled", fg_color="black", text_color="black")
         
         
         
@@ -547,21 +558,19 @@ def CreateTaskList():
         linkButton.configure(command=lambda localI=i: LinkButtonCallback(localI))
         linkButton.grid(row=0, column=3, pady=5, padx=5)
 
-
-        #TODO rotation implementation
-        #previewbutton = ctk.CTkButton(listFrame, text="⟳", width=50, font=nerdFont, fg_color=("red" if aspect > 1 else "green"), hover_color=("darkred" if aspect > 1 else "darkgreen"))
-        #previewbutton.configure(command=lambda localI=i: RotateTaskDataImage(taskData[localI]))
-        #previewbutton.grid(row=i, column=2, pady=5, padx=5)
+        rotateImageButton = ctk.CTkButton(rowFrame, text="⟳", width=50, font=nerdFont, fg_color="green", hover_color="darkgreen")
+        rotateImageButton.configure(command=lambda localI=i: RotateTaskDataImage(taskData[localI]))
+        rotateImageButton.grid(row=0, column=4, pady=5, padx=5)
 
         previewbutton = ctk.CTkButton(rowFrame, text="󰷊", width=50, font=nerdFont, fg_color="green", hover_color="darkgreen") #👁
         previewbutton.configure(command=lambda localI=i: CanvasUpdate(taskData[localI]))
-        previewbutton.grid(row=0, column=4, pady=5, padx=5)
+        previewbutton.grid(row=0, column=5, pady=5, padx=5)
 
         
 
         savebutton = ctk.CTkButton(rowFrame, text="󰆓", width=50, font=nerdFont, fg_color="green", hover_color="darkgreen") #💾
         savebutton.configure(command=lambda localI=i, widgets=[nameEntry,completion,savebutton,previewbutton,linkButton,linkText]: SavePdfButton(localI, widgets))
-        savebutton.grid(row=0, column=5, pady=5, padx=5)
+        savebutton.grid(row=0, column=6, pady=5, padx=5)
 
         taskData[i].widgetList = [nameEntry,completion,savebutton,previewbutton,linkButton,linkText]
         taskData[i].widgetReference.linkText            = linkText
@@ -650,7 +659,7 @@ def CanvasUpdate(task: TaskData):
         #canvas.create_rectangle(p0[0], p0[1], p1[0], p1[1], fill="darkred")
     else:
         imgData = Image.open(task.imagePath)
-        imgData = imgData.rotate(-90, expand=True) #TODO rotation
+        imgData = imgData.rotate(-task.rotation*90, expand=True)
         imgData_width = imgData.width
         imgData_height = imgData.height
 

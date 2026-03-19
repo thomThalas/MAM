@@ -166,6 +166,21 @@ def scale_to_fit(width: float, height: float, max_width: float, max_height: floa
     scale = min(max_width / width, max_height / height)
     return width * scale, height * scale
 
+ENGLISH_TO_DANISH_MONTHS = [
+    ("January", "januar"),
+    ("February", "februar"),
+    ("March", "marts"),
+    ("April", "april"),
+    ("May", "maj"),
+    ("June", "juni"),
+    ("July", "juli"),
+    ("August", "august"),
+    ("September", "september"),
+    ("October", "oktober"),
+    ("November", "november"),
+    ("December", "december")
+]
+
 def ModifyPdf(page: ppdf.Page, name: str, pageNumber, amountOfPages):
     if config.render_textname == "1":
         page.insert_text(ppdf.Point(25, int(config.top_padding)), name)
@@ -181,6 +196,10 @@ def ModifyPdf(page: ppdf.Page, name: str, pageNumber, amountOfPages):
         match i:
             case 0:
                 timeText = datetime.datetime.today().strftime("%d-%B-%Y")
+                
+                for month in ENGLISH_TO_DANISH_MONTHS:
+                    timeText = timeText.replace(month[0], month[1])
+                
                 page.insert_text(inst.bl, timeText, fontsize=13)
             case 1:
                 page.insert_text(inst.bl, F"Side {pageNumber} af {amountOfPages}")

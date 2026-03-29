@@ -4,3 +4,7 @@ images/
 output/
 __pycache__/
 main.spec
+pyvenv.cfg
+bin/
+lib/
+lib64
